@@ -34,3 +34,18 @@ public:
     std::string get(const std::string& key);
     void put(const std::string& key, const std::string& value);
 };
+
+class ThreadPool {
+private:
+    std::vector<std::thread> workers;
+    std::queue<std::function<void()>> tasks;
+    std::mutex queueMutex;
+    std::condition_variable condition;
+    bool stop;
+
+public:
+    ThreadPool(size_t threads);
+    template<class F>
+    void enqueue(F&& f);
+    ~ThreadPool();
+};
