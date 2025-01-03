@@ -14,3 +14,14 @@ void LRUCache::moveToFront(Node* node) {
     head->prev = node;
     head = node;
 }
+
+LRUCache::LRUCache(int capacity) : capacity(capacity), head(nullptr), tail(nullptr) {}
+
+std::string LRUCache::get(const std::string& key) {
+    std::lock_guard<std::mutex> lock(cacheMutex);
+    if (cache.find(key) == cache.end()) return "";
+    
+    Node* node = cache[key];
+    moveToFront(node);
+    return node->value;
+}
