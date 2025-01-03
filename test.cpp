@@ -127,3 +127,25 @@ public:
         std::cout << "Cache speedup: " << (latency1 / latency2) << "x" << std::endl;
     }
 };
+
+int main() {
+    // Initialize your gateway
+    APIGateway gateway(1000, std::thread::hardware_concurrency());
+    GatewayTester tester(gateway);
+    
+    // Run basic endpoint tests
+    std::cout << "=== Running Basic Endpoint Tests ===" << std::endl;
+    tester.runEndpointTest();
+    
+    // Run cache effectiveness test
+    std::cout << "\n=== Running Cache Tests ===" << std::endl;
+    tester.runCacheTest();
+    
+    // Run load test
+    std::cout << "\n=== Running Load Test ===" << std::endl;
+    std::cout << "Simulating 1000 requests with 10 concurrent users..." << std::endl;
+    auto metrics = tester.runLoadTest(1000, 10);
+    metrics.print();
+    
+    return 0;
+}
