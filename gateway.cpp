@@ -85,3 +85,34 @@ ThreadPool::~ThreadPool() {
         worker.join();
     }
 }
+
+// APIGateway implementations
+APIGateway::APIGateway(int cacheSize, int threadCount) 
+    : cache(cacheSize), 
+      threadPool(threadCount),
+      currentBackend(0) {
+    backends = {"backend1:8080", "backend2:8080", "backend3:8080"};
+}
+
+std::string APIGateway::makeBackendRequest(const std::string& backend, const std::string& request) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    return "Response for: " + request + " from " + backend;
+}
+
+std::string APIGateway::handleRequest(const std::string& request) {
+    std::string cachedResponse = cache.get(request);
+    if (!cachedResponse.empty()) {
+        return "CACHE_HIT: " + cachedResponse;
+    
+
+    std::string selectedBackend;
+    {
+        std::lock_guard<std::mutex> lock(backendMutex);
+        selectedBackend = backends[currentBackend];
+        currentBackend = (currentBackend + 1) % backends.size();
+    }
+
+    std::string response = makeBackendRequest(selectedBackend, request);
+    cache.put(request, response);
+    return response;
+}
