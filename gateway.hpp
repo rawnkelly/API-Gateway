@@ -49,3 +49,20 @@ public:
     void enqueue(F&& f);
     ~ThreadPool();
 };
+
+class APIGateway {
+private:
+    LRUCache cache;
+    ThreadPool threadPool;
+    std::vector<std::string> backends;
+    size_t currentBackend;
+    std::mutex backendMutex;
+
+    std::string makeBackendRequest(const std::string& backend, const std::string& request);
+
+public:
+    APIGateway(int cacheSize, int threadCount);
+    std::string handleRequest(const std::string& request);
+};
+
+#endif
